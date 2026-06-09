@@ -6,6 +6,7 @@
     <title>Neveras Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* ... (mismo CSS, sin cambios) ... */
         :root {
             --bg: #f2f2f7; --card: rgba(255,255,255,0.85); --text: #1c1c1e;
             --secondary: #6e6e73; --blue: #007AFF; --red: #FF3B30; --green: #34C759;
@@ -296,7 +297,7 @@
                     <h3 id="previewName">Nombre del producto</h3>
                     <div id="previewDeliveryBadge"></div>
                     <div class="preview-dims" id="previewDimensions">📏 Medidas: - x - x -</div>
-                    <div class="preview-tech" id="previewTech">🔧 Garantía: - | Compresor: - | Voltaje: -</div>
+                    <div class="preview-tech" id="previewTech">Garantía: - | Compresor: - | Voltaje: -</div>
                     <div id="compressorPreviewContainer" style="display: none; margin-top: 6px;">
                         <img id="compressorPreviewThumb" src="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
                     </div>
@@ -363,13 +364,16 @@
             } catch (e) { return bcvRate || 0; }
         }
         function formatUsd(v) { return '$' + Number(v).toFixed(2); }
-        function formatBs(v) { return 'Bs ' + Number(v).toFixed(2); }
+        function formatBs(v) {
+            // Formatear con separadores de miles (punto) y dos decimales
+            return 'Bs ' + Number(v).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
         async function updateBsCalculation() {
             const usdInput = parseFloat(document.getElementById('price_usd').value); const usd = isNaN(usdInput) ? 0 : usdInput;
             const markupInput = parseFloat(document.getElementById('markup_percentage').value); const markupPercentage = isNaN(markupInput) ? 0 : markupInput;
             const rate = await getBCVRate();
-            document.getElementById('currentBcvRate').textContent = 'Bs ' + rate.toFixed(2);
+            document.getElementById('currentBcvRate').textContent = formatBs(rate);
             document.getElementById('markupLabel').textContent = `Monto financiado (+${markupPercentage}%):`;
             if (usd > 0) {
                 const usdWithMarkup = usd * (1 + (markupPercentage / 100)); const totalBs = usdWithMarkup * rate;
@@ -480,10 +484,10 @@
                 const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/50x50/f0f0f5/999?text=N/A');
                 const deliveryText = p.immediate_delivery ? '⚡ Entrega Inmediata' : `⏳ Fab: ${p.manufacturing_days || 0} días`;
                 const techText = [
-                    p.warranty ? `🔧 ${p.warranty}` : '',
-                    p.compressor_brand ? `⚙️ ${p.compressor_brand}` : '',
-                    p.voltage ? `⚡ ${p.voltage}` : ''
-                ].filter(Boolean).join(' · ');
+                    p.warranty ? `Garantía: ${p.warranty}` : '',
+                    p.compressor_brand ? `Compresor: ${p.compressor_brand}` : '',
+                    p.voltage ? `Voltaje: ${p.voltage}` : ''
+                ].filter(Boolean).join(' | ');
                 
                 return `
                     <div class="product-item">
@@ -551,7 +555,7 @@
             const v = voltageInput.value.trim();
             if (w || cb || v) {
                 previewTech.style.display = 'block';
-                previewTech.textContent = `🔧 Garantía: ${w||'-'} | Compresor: ${cb||'-'} | Voltaje: ${v||'-'}`;
+                previewTech.textContent = `Garantía: ${w||'-'} | Compresor: ${cb||'-'} | Voltaje: ${v||'-'}`;
             } else {
                 previewTech.style.display = 'none';
             }
@@ -739,11 +743,11 @@
                 let techHtml = '';
                 if (p.warranty || p.compressor_brand || p.voltage) {
                     const parts = [
-                        p.warranty ? `🔧 ${p.warranty}` : '',
-                        p.compressor_brand ? `⚙️ ${p.compressor_brand}` : '',
-                        p.voltage ? `⚡ ${p.voltage}` : ''
+                        p.warranty ? `Garantía: ${p.warranty}` : '',
+                        p.compressor_brand ? `Compresor: ${p.compressor_brand}` : '',
+                        p.voltage ? `Voltaje: ${p.voltage}` : ''
                     ].filter(Boolean);
-                    techHtml = `<div class="preview-tech" style="display:block; font-size:13px; color:#555; margin-bottom:6px;">${parts.join(' · ')}</div>`;
+                    techHtml = `<div class="preview-tech" style="display:block; font-size:13px; color:#555; margin-bottom:6px;">${parts.join(' | ')}</div>`;
                 }
 
                 let compressorImgHtml = '';
