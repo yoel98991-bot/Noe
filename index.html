@@ -6,7 +6,6 @@
     <title>Neveras Admin</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* ... (mismo CSS, sin cambios) ... */
         :root {
             --bg: #f2f2f7; --card: rgba(255,255,255,0.85); --text: #1c1c1e;
             --secondary: #6e6e73; --blue: #007AFF; --red: #FF3B30; --green: #34C759;
@@ -18,10 +17,10 @@
         .app { max-width: 480px; width: 100%; margin: 0 auto; }
 
         .header { text-align: center; margin-bottom: 24px; padding-top: 12px; }
-        .header h1 { font-size: 32px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .header .sub { font-size: 15px; color: var(--secondary); margin-top: 4px; }
+        .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px; line-height: 1.2; }
+        .header .sub { font-size: 15px; color: var(--secondary); margin-top: 6px; }
         
-        .connection-badge { width: 12px; height: 12px; border-radius: 50%; background: #ccc; display: inline-block; transition: background 0.3s; }
+        .connection-badge { width: 12px; height: 12px; border-radius: 50%; background: #ccc; display: inline-block; transition: background 0.3s; flex-shrink: 0; }
         .connection-badge.connected { background: var(--green); animation: pulse 2s infinite; }
         .connection-badge.disconnected { background: var(--red); animation: none; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(52,199,89,0.6); } 70% { box-shadow: 0 0 0 8px rgba(52,199,89,0); } 100% { box-shadow: 0 0 0 0 rgba(52,199,89,0); } }
@@ -45,7 +44,6 @@
         .product-info { flex: 1; min-width: 0; }
         .product-info .title { font-weight: 600; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .product-info .meta { font-size: 13px; color: var(--secondary); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-        .stars { color: var(--yellow); font-size: 13px; letter-spacing: 1px; }
         .actions { display: flex; gap: 8px; }
 
         .product-card { background: var(--card); backdrop-filter: blur(12px); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; animation: fadeInUp 0.4s ease both; position: relative; }
@@ -56,6 +54,11 @@
         .product-card h3 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
         .product-card .city { font-size: 14px; color: var(--secondary); margin-bottom: 6px; }
         .product-card .desc { font-size: 14px; color: #3a3a3c; margin-bottom: 8px; }
+        
+        .design-tags { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+        .design-tag { background: #f0f0f5; color: #3a3a3c; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #e5e5ea; }
+        .color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+        
         .product-card .dimensions { font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 10px; background: #f0f8ff; display: inline-block; padding: 4px 8px; border-radius: 8px; }
         .prices { display: flex; justify-content: space-between; align-items: center; }
         .price-usd { font-size: 18px; font-weight: 700; color: var(--green); }
@@ -68,21 +71,25 @@
 
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 14px; font-weight: 600; color: var(--secondary); margin-bottom: 8px; margin-left: 4px; }
-        .form-group input:not([type="checkbox"]), .form-group textarea { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #e5e5ea; background: #fafafa; font-size: 16px; color: var(--text); transition: all var(--transition); font-family: inherit; -webkit-appearance: none; }
+        .form-group input:not([type="checkbox"]):not([type="radio"]), .form-group textarea { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #e5e5ea; background: #fafafa; font-size: 16px; color: var(--text); transition: all var(--transition); font-family: inherit; -webkit-appearance: none; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); background: #ffffff; box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
 
-        .price-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 12px; margin-bottom: 4px; }
-        .price-grid .form-group { margin-bottom: 0; }
+        /* Estilos de Selección de Modelo y Color */
+        .radio-group { background: #fafafa; border: 1px solid #e5e5ea; border-radius: 14px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+        .radio-option { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; }
+        .radio-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
         
-        .measure-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .measure-grid .form-group { margin-bottom: 0; }
-        .measure-grid label { font-size: 12px; white-space: nowrap; }
-        .measure-grid input { padding: 10px 8px; font-size: 14px; text-align: center; }
+        .color-palette { display: flex; gap: 12px; flex-wrap: wrap; padding: 4px; }
+        .color-swatch { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: all 0.2s; position: relative; }
+        .color-swatch.active { border-color: var(--blue); transform: scale(1.15); box-shadow: 0 0 0 2px rgba(0,122,255,0.3); }
+        .color-swatch.active::after { content: '✓'; position: absolute; color: white; font-weight: bold; font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
-        .tech-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-        .tech-grid .form-group { margin-bottom: 0; }
-        .tech-grid label { font-size: 12px; white-space: nowrap; }
-        .tech-grid input { padding: 10px 8px; font-size: 14px; }
+        .price-grid, .measure-grid, .tech-grid { display: grid; gap: 8px; }
+        .price-grid { grid-template-columns: 1.5fr 1fr; margin-bottom: 4px; }
+        .measure-grid, .tech-grid { grid-template-columns: 1fr 1fr 1fr; }
+        .measure-grid .form-group, .tech-grid .form-group, .price-grid .form-group { margin-bottom: 0; }
+        .measure-grid label, .tech-grid label { font-size: 12px; white-space: nowrap; }
+        .measure-grid input, .tech-grid input { padding: 10px 8px; font-size: 14px; text-align: center; }
 
         .calculated-field { background: #f0f8ff; border: 1px solid #cce5ff; border-radius: 14px; padding: 14px; margin-bottom: 18px; display: flex; flex-direction: column; gap: 8px; }
         .calc-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
@@ -96,7 +103,6 @@
         input:checked + .slider { background-color: var(--green); }
         input:checked + .slider:before { transform: translateX(20px); }
         .toggle-label { font-size: 15px; font-weight: 600; color: var(--text); }
-        
         #days_container { transition: opacity 0.3s; }
 
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
@@ -111,13 +117,7 @@
         .mini-info .city { font-size: 13px; color: var(--secondary); margin-bottom: 4px;}
         .mini-info .price-usd { font-size: 14px; font-weight: 600; color: var(--green); }
         .mini-info .price-bs { font-size: 14px; font-weight: 600; color: #4a4a4a; }
-        .preview-dims { font-size: 12px; font-weight: 600; color: var(--blue); margin-bottom: 4px; display: none; }
-        .preview-tech { font-size: 12px; color: #555; margin-bottom: 4px; display: none; }
-        .compressor-preview-img { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-top: 4px; display: none; border: 1px solid #ddd; }
         
-        .star-input { display: flex; gap: 6px; font-size: 28px; color: #d1d1d6; cursor: pointer; margin-bottom: 18px; }
-        .star-input span.active { color: var(--yellow); }
-
         .url-input-container { display: flex; gap: 8px; margin-bottom: 8px; }
         .url-input-container input { flex: 1; }
         .gallery-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
@@ -125,6 +125,9 @@
         .gallery-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #ddd; }
         .gallery-item .remove-btn { position: absolute; top: -6px; right: -6px; background: var(--red); color: white; border: none; border-radius: 50%; width: 22px; height: 22px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
         
+        .star-input { display: flex; gap: 6px; font-size: 28px; color: #d1d1d6; cursor: pointer; margin-bottom: 18px; }
+        .star-input span.active { color: var(--yellow); }
+
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
         .page { display: none; width: 100%; }
@@ -146,8 +149,8 @@
 <body>
     <div class="app">
         <div class="header">
-            <h1>Neveras Profesionales <span class="connection-badge" id="connectionBadge"></span></h1>
-            <div class="sub">Charcuteras · Carniceras · Pasteleras</div>
+            <h1>Fabricante de Neveras <span class="connection-badge" id="connectionBadge"></span></h1>
+            <div class="sub">Carniceras, Charcuteras y pasteleras en Valencia Carabobo</div>
             <div class="badge-tooltip" id="connectionText">Verificando conexión…</div>
         </div>
 
@@ -200,6 +203,31 @@
                 <textarea id="description" placeholder="Detalles del compresor, estado, accesorios..." rows="3"></textarea>
             </div>
 
+            <!-- SECCIÓN NUEVA: MATERIALES Y COLORES -->
+            <div class="form-group">
+                <label>Acabado Exterior (Material)</label>
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="exterior_model" value="Modelo 1" checked> 
+                        Modelo 1 (Laterales Pintados, Frente Acero)
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="exterior_model" value="Modelo 2"> 
+                        Modelo 2 (Full Acero Inoxidable)
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group" id="colorSection">
+                <label>Color de Pintura (Aplicable al Modelo 1)</label>
+                <div class="color-palette" id="colorPaletteContainer">
+                    <!-- Los colores se generan por JS -->
+                </div>
+                <input type="hidden" id="color_code" value="#FFFFFF">
+                <div id="colorNameDisplay" style="font-size: 13px; color: var(--secondary); margin-top: 4px;">Seleccionado: Blanco</div>
+            </div>
+            <!-- FIN SECCIÓN NUEVA -->
+
             <div class="form-group">
                 <label>Dimensiones del Equipo</label>
                 <div class="measure-grid">
@@ -233,11 +261,6 @@
                         <label>Voltaje</label>
                         <input type="text" id="voltage" placeholder="Ej: 110V">
                     </div>
-                </div>
-                <div class="form-group" style="margin-top: 12px;">
-                    <label>Imagen del Compresor (URL)</label>
-                    <input type="url" id="compressor_image_url" placeholder="https://ejemplo.com/compresor.jpg">
-                    <img id="compressorPreviewImg" class="compressor-preview-img" src="" alt="Previsualización compresor" style="margin-top: 8px;">
                 </div>
             </div>
 
@@ -279,7 +302,6 @@
                     <input type="url" id="new_image_url" placeholder="https://ejemplo.com/imagen.jpg">
                     <button type="button" class="btn secondary" id="addUrlBtn" style="padding: 10px 14px;">Añadir</button>
                 </div>
-                <div id="urlError" style="color: var(--red); font-size: 13px; font-weight: 600; display: none; margin-bottom: 8px;"></div>
                 <p id="imageCount" style="font-size: 12px; color: var(--secondary);">0/10 añadidas</p>
                 <div class="gallery-preview" id="galleryPreviewContainer"></div>
             </div>
@@ -296,15 +318,10 @@
                 <div class="mini-info">
                     <h3 id="previewName">Nombre del producto</h3>
                     <div id="previewDeliveryBadge"></div>
-                    <div class="preview-dims" id="previewDimensions">📏 Medidas: - x - x -</div>
-                    <div class="preview-tech" id="previewTech">Garantía: - | Compresor: - | Voltaje: -</div>
-                    <div id="compressorPreviewContainer" style="display: none; margin-top: 6px;">
-                        <img id="compressorPreviewThumb" src="" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;">
-                    </div>
+                    <div class="design-tags" id="previewDesignTags"></div>
                     <div class="city" id="previewCity">📍 Ciudad</div>
                     <div class="price-usd" id="previewUsd">$0.00</div>
                     <div class="price-bs" id="previewBs">Bs —</div>
-                    <div class="stars" id="previewStars">★★★★★</div>
                 </div>
             </div>
 
@@ -323,10 +340,9 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Configuración
+        // Configuración Supabase
         const SUPABASE_URL = 'https://hjhnqitgblpucdihwbyl.supabase.co';
         const SUPABASE_SERVICE_ROLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaG5xaXRnYmxwdWNkaWh3YnlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDk2MTA2MywiZXhwIjoyMDk2NTM3MDYzfQ.e9KjV1j50pu5WAvYBfJWyxb9n_Wl93_waZjI3j1cRog';
-
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE, { auth: { persistSession: false } });
 
         let editingId = null;
@@ -334,7 +350,59 @@
         const CACHE_DURATION = 30 * 60 * 1000;
         let currentGalleryUrls = [];
 
-        // --- Badge de conexión ---
+        // --- PALETA DE COLORES (Extensible) ---
+        const companyColors = [
+            { name: "Blanco Clásico", hex: "#FFFFFF" },
+            { name: "Negro Mate", hex: "#1c1c1e" },
+            { name: "Rojo Carnicero", hex: "#D32F2F" },
+            { name: "Azul Rey", hex: "#1976D2" },
+            { name: "Gris Plata", hex: "#9E9E9E" },
+            { name: "Verde Oscuro", hex: "#388E3C" }
+        ];
+
+        const colorPaletteContainer = document.getElementById('colorPaletteContainer');
+        const colorCodeInput = document.getElementById('color_code');
+        const colorNameDisplay = document.getElementById('colorNameDisplay');
+        const exteriorModelRadios = document.getElementsByName('exterior_model');
+        const colorSection = document.getElementById('colorSection');
+
+        function initColorPalette() {
+            colorPaletteContainer.innerHTML = '';
+            companyColors.forEach((c, index) => {
+                const swatch = document.createElement('div');
+                swatch.className = 'color-swatch' + (index === 0 ? ' active' : '');
+                swatch.style.backgroundColor = c.hex;
+                swatch.dataset.hex = c.hex;
+                swatch.dataset.name = c.name;
+                
+                swatch.addEventListener('click', () => {
+                    document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                    swatch.classList.add('active');
+                    colorCodeInput.value = c.hex;
+                    colorNameDisplay.textContent = `Seleccionado: ${c.name}`;
+                    updatePreview();
+                });
+                colorPaletteContainer.appendChild(swatch);
+            });
+            colorCodeInput.value = companyColors[0].hex;
+        }
+        initColorPalette();
+
+        // Mostrar/Ocultar colores dependiendo del modelo
+        Array.from(exteriorModelRadios).forEach(radio => {
+            radio.addEventListener('change', () => {
+                if(radio.value === 'Modelo 2') {
+                    colorSection.style.opacity = '0.5';
+                    colorSection.style.pointerEvents = 'none';
+                } else {
+                    colorSection.style.opacity = '1';
+                    colorSection.style.pointerEvents = 'auto';
+                }
+                updatePreview();
+            });
+        });
+
+        // --- Lógica general UI ---
         const connectionBadge = document.getElementById('connectionBadge');
         const connectionText = document.getElementById('connectionText');
 
@@ -342,77 +410,27 @@
             try {
                 const { error } = await supabaseClient.from('products').select('count', { count: 'exact', head: true });
                 if (error) throw error;
-                connectionBadge.className = 'connection-badge connected'; connectionText.textContent = 'Conectado a Supabase';
-            } catch (e) { connectionBadge.className = 'connection-badge disconnected'; connectionText.textContent = 'Error de conexión'; }
+                connectionBadge.className = 'connection-badge connected'; connectionText.textContent = 'Conectado';
+            } catch (e) { connectionBadge.className = 'connection-badge disconnected'; connectionText.textContent = 'Error'; }
         }
         checkConnection();
-        async function withConnectionCheck(operation) { await operation(); await checkConnection(); }
         function showToast(msg) {
             const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('visible');
             setTimeout(() => t.classList.remove('visible'), 2500);
         }
 
-        // --- Tasa BCV ---
         async function getBCVRate() {
             if (bcvRate && (Date.now() - bcvTimestamp < CACHE_DURATION)) return bcvRate;
             try {
                 const res = await fetch('https://ve.dolarapi.com/v1/dolares'); const data = await res.json();
                 let rate = 0;
-                const bcv = data.find(d => (d.fuente && d.fuente.toLowerCase().includes('oficial')) || (d.nombre && d.nombre.toLowerCase().includes('oficial')) || (d.nombre && d.nombre.toLowerCase() === 'bcv'));
+                const bcv = data.find(d => (d.fuente && d.fuente.toLowerCase().includes('oficial')) || (d.nombre && d.nombre.toLowerCase().includes('oficial')));
                 if (bcv && bcv.promedio) { rate = bcv.promedio; } else if (data.length > 0) { rate = data[0].promedio || 0; }
                 if (rate > 0) { bcvRate = rate; bcvTimestamp = Date.now(); } return rate;
             } catch (e) { return bcvRate || 0; }
         }
         function formatUsd(v) { return '$' + Number(v).toFixed(2); }
-        function formatBs(v) {
-            // Formatear con separadores de miles (punto) y dos decimales
-            return 'Bs ' + Number(v).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        async function updateBsCalculation() {
-            const usdInput = parseFloat(document.getElementById('price_usd').value); const usd = isNaN(usdInput) ? 0 : usdInput;
-            const markupInput = parseFloat(document.getElementById('markup_percentage').value); const markupPercentage = isNaN(markupInput) ? 0 : markupInput;
-            const rate = await getBCVRate();
-            document.getElementById('currentBcvRate').textContent = formatBs(rate);
-            document.getElementById('markupLabel').textContent = `Monto financiado (+${markupPercentage}%):`;
-            if (usd > 0) {
-                const usdWithMarkup = usd * (1 + (markupPercentage / 100)); const totalBs = usdWithMarkup * rate;
-                document.getElementById('calculatedUsdMarkup').textContent = formatUsd(usdWithMarkup);
-                document.getElementById('calculatedBsValue').textContent = formatBs(totalBs);
-                document.getElementById('previewUsd').textContent = formatUsd(usd); document.getElementById('previewBs').textContent = formatBs(totalBs);
-            } else {
-                document.getElementById('calculatedUsdMarkup').textContent = '—'; document.getElementById('calculatedBsValue').textContent = '—';
-                document.getElementById('previewUsd').textContent = '$0.00'; document.getElementById('previewBs').textContent = 'Bs —';
-            }
-        }
-        document.getElementById('price_usd').addEventListener('input', updateBsCalculation);
-        document.getElementById('markup_percentage').addEventListener('input', updateBsCalculation);
-
-        // --- LÓGICA DE AÑADIR/ELIMINAR URLs ---
-        const newImageUrlInput = document.getElementById('new_image_url');
-        const addUrlBtn = document.getElementById('addUrlBtn');
-        const galleryPreviewContainer = document.getElementById('galleryPreviewContainer');
-        const imageCount = document.getElementById('imageCount');
-        const urlError = document.getElementById('urlError');
-        const previewImg = document.getElementById('previewImg');
-
-        function renderGallery() {
-            galleryPreviewContainer.innerHTML = '';
-            imageCount.textContent = `${currentGalleryUrls.length}/10 añadidas`;
-            if (currentGalleryUrls.length > 0) { previewImg.src = currentGalleryUrls[0]; } else { previewImg.src = 'https://placehold.co/400x120/f0f0f5/999?text=Previsualización'; }
-            currentGalleryUrls.forEach((url, index) => {
-                const div = document.createElement('div'); div.className = 'gallery-item';
-                div.innerHTML = `<img src="${url}" onerror="this.src='https://placehold.co/60x60/f8d7da/721c24?text=Error'"><button type="button" class="remove-btn" onclick="removeUrl(${index})">×</button>`;
-                galleryPreviewContainer.appendChild(div);
-            });
-        }
-        window.removeUrl = function(index) { currentGalleryUrls.splice(index, 1); urlError.style.display = 'none'; renderGallery(); };
-
-        addUrlBtn.addEventListener('click', () => {
-            const url = newImageUrlInput.value.trim(); if (!url) return;
-            if (currentGalleryUrls.length >= 10) { urlError.textContent = '⚠️ Límite de 10 imágenes alcanzado.'; urlError.style.display = 'block'; return; }
-            currentGalleryUrls.push(url); newImageUrlInput.value = ''; urlError.style.display = 'none'; renderGallery();
-        });
+        function formatBs(v) { return 'Bs ' + Number(v).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 
         // --- DOM Elements ---
         const nameInput = document.getElementById('name'); 
@@ -420,171 +438,56 @@
         const descInput = document.getElementById('description');
         const priceInput = document.getElementById('price_usd'); 
         const markupInput = document.getElementById('markup_percentage');
-        
         const immediateDeliveryCheck = document.getElementById('immediate_delivery');
         const manufacturingDaysInput = document.getElementById('manufacturing_days');
-        const daysContainer = document.getElementById('days_container');
         
-        const measureLength = document.getElementById('measure_length');
-        const measureHeight = document.getElementById('measure_height');
-        const measureDepth = document.getElementById('measure_depth');
-        const previewDimensions = document.getElementById('previewDimensions');
-
-        const warrantyInput = document.getElementById('warranty');
-        const compressorBrandInput = document.getElementById('compressor_brand');
-        const voltageInput = document.getElementById('voltage');
-        const compressorImageUrlInput = document.getElementById('compressor_image_url');
-        const compressorPreviewImg = document.getElementById('compressorPreviewImg');
-        const compressorPreviewThumb = document.getElementById('compressorPreviewThumb');
-        const compressorPreviewContainer = document.getElementById('compressorPreviewContainer');
-        const previewTech = document.getElementById('previewTech');
-
-        // Previsualización de imagen del compresor
-        compressorImageUrlInput.addEventListener('input', () => {
-            const url = compressorImageUrlInput.value.trim();
-            if (url) {
-                compressorPreviewImg.src = url;
-                compressorPreviewImg.style.display = 'block';
-                compressorPreviewThumb.src = url;
-                compressorPreviewContainer.style.display = 'block';
-            } else {
-                compressorPreviewImg.style.display = 'none';
-                compressorPreviewContainer.style.display = 'none';
-            }
-        });
-
-        immediateDeliveryCheck.addEventListener('change', () => {
-            if (immediateDeliveryCheck.checked) {
-                manufacturingDaysInput.value = '';
-                manufacturingDaysInput.disabled = true;
-                daysContainer.style.opacity = '0.4';
-            } else {
-                manufacturingDaysInput.disabled = false;
-                daysContainer.style.opacity = '1';
-            }
-            updatePreview();
-        });
-
-        // --- Métricas y lista ---
-        async function loadMetrics() {
-            const { count } = await supabaseClient.from('products').select('*', { count: 'exact', head: true });
-            document.getElementById('productsCount').textContent = count || 0;
-            let totalVisits = localStorage.getItem('beta_total_views') || 0; totalVisits = parseInt(totalVisits);
-            if (Math.random() < 0.3) totalVisits += Math.floor(Math.random() * 3); localStorage.setItem('beta_total_views', totalVisits); document.getElementById('totalViews').textContent = totalVisits;
-        }
-
-        async function loadProductsDashboard() {
-            const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-            if (error) { showToast('Error al cargar productos'); return; }
-            const list = document.getElementById('productList');
-            if (!data.length) { list.innerHTML = '<div class="empty-state">Aún no hay productos</div>'; return; }
+        async function updateBsCalculation() {
+            const usd = parseFloat(priceInput.value) || 0;
+            const markup = parseFloat(markupInput.value) || 0;
+            const rate = await getBCVRate();
+            document.getElementById('currentBcvRate').textContent = formatBs(rate);
             
-            list.innerHTML = data.map(p => {
-                const starsHtml = Array.from({ length: 5 }, (_, i) => i < (p.rating || 5) ? '★' : '☆').join('');
-                const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/50x50/f0f0f5/999?text=N/A');
-                const deliveryText = p.immediate_delivery ? '⚡ Entrega Inmediata' : `⏳ Fab: ${p.manufacturing_days || 0} días`;
-                const techText = [
-                    p.warranty ? `Garantía: ${p.warranty}` : '',
-                    p.compressor_brand ? `Compresor: ${p.compressor_brand}` : '',
-                    p.voltage ? `Voltaje: ${p.voltage}` : ''
-                ].filter(Boolean).join(' | ');
-                
-                return `
-                    <div class="product-item">
-                        <img src="${mainImg}" alt="">
-                        <div class="product-info">
-                            <div class="title">${p.name}</div>
-                            <div class="meta">
-                                <span>📍 ${p.city}</span><span>${formatUsd(p.price_usd)}</span><span>${deliveryText}</span>
-                                ${techText ? `<span>${techText}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="actions">
-                            <button class="btn small secondary edit-btn" data-id="${p.id}">Editar</button>
-                            <button class="btn small danger delete-btn" data-id="${p.id}">Eliminar</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-            document.querySelectorAll('.edit-btn').forEach(btn => btn.addEventListener('click', () => editProduct(btn.dataset.id, data)));
-            document.querySelectorAll('.delete-btn').forEach(btn => btn.addEventListener('click', () => deleteProduct(btn.dataset.id)));
-            loadMetrics();
+            if (usd > 0) {
+                const totalBs = usd * (1 + (markup / 100)) * rate;
+                document.getElementById('calculatedBsValue').textContent = formatBs(totalBs);
+                document.getElementById('previewUsd').textContent = formatUsd(usd); 
+                document.getElementById('previewBs').textContent = formatBs(totalBs);
+            }
         }
-
-        // --- Modal ---
-        const modalOverlay = document.getElementById('modalOverlay'); const modalTitle = document.getElementById('modalTitle');
-        const saveBtn = document.getElementById('saveProductBtn'); const cancelModalBtn = document.getElementById('cancelModalBtn'); const addProductBtn = document.getElementById('addProductBtn');
-
-        function openModal() { modalOverlay.classList.add('active'); document.body.style.overflow = 'hidden'; updateBsCalculation(); }
-        function closeModal() { modalOverlay.classList.remove('active'); document.body.style.overflow = ''; resetForm(); }
-        cancelModalBtn.addEventListener('click', closeModal); modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
-        addProductBtn.addEventListener('click', () => { resetForm(); modalTitle.textContent = 'Nuevo producto'; openModal(); });
-
-        const starContainer = document.getElementById('starRating');
-        let ratingValue = 5;
-
-        starContainer.addEventListener('click', (e) => { if (e.target.tagName === 'SPAN') { ratingValue = parseInt(e.target.dataset.value); updateStarDisplay(); } });
-        function updateStarDisplay() { Array.from(starContainer.children).forEach(star => { star.classList.toggle('active', parseInt(star.dataset.value) <= ratingValue); }); document.getElementById('previewStars').textContent = '★'.repeat(ratingValue) + '☆'.repeat(5 - ratingValue); }
-        updateStarDisplay();
+        priceInput.addEventListener('input', updateBsCalculation);
+        markupInput.addEventListener('input', updateBsCalculation);
 
         function updatePreview() { 
             document.getElementById('previewName').textContent = nameInput.value || 'Nombre del producto'; 
             document.getElementById('previewCity').textContent = '📍 ' + (cityInput.value || 'Ciudad'); 
             
-            const badgeContainer = document.getElementById('previewDeliveryBadge');
-            if (immediateDeliveryCheck.checked) {
-                badgeContainer.innerHTML = '<span class="delivery-badge immediate">⚡ Entrega Inmediata</span>';
-            } else if (manufacturingDaysInput.value) {
-                badgeContainer.innerHTML = `<span class="delivery-badge delayed">⏳ Fabricación: ${manufacturingDaysInput.value} días</span>`;
+            // Actualizar tags de Diseño en la previsualización
+            const selectedModel = document.querySelector('input[name="exterior_model"]:checked').value;
+            const designTagsContainer = document.getElementById('previewDesignTags');
+            
+            if (selectedModel === 'Modelo 1') {
+                const hex = colorCodeInput.value;
+                designTagsContainer.innerHTML = `
+                    <span class="design-tag">🛡️ Modelo 1</span>
+                    <span class="design-tag"><div class="color-dot" style="background-color: ${hex};"></div> Color Pintura</span>
+                `;
             } else {
-                badgeContainer.innerHTML = '';
-            }
-
-            const l = measureLength.value.trim();
-            const h = measureHeight.value.trim();
-            const d = measureDepth.value.trim();
-            if (l || h || d) {
-                previewDimensions.style.display = 'block';
-                previewDimensions.textContent = `📏 Largo: ${l||'-'} × Alto: ${h||'-'} × Prof: ${d||'-'}`;
-            } else {
-                previewDimensions.style.display = 'none';
-            }
-
-            const w = warrantyInput.value.trim();
-            const cb = compressorBrandInput.value.trim();
-            const v = voltageInput.value.trim();
-            if (w || cb || v) {
-                previewTech.style.display = 'block';
-                previewTech.textContent = `Garantía: ${w||'-'} | Compresor: ${cb||'-'} | Voltaje: ${v||'-'}`;
-            } else {
-                previewTech.style.display = 'none';
+                designTagsContainer.innerHTML = `<span class="design-tag">✨ Full Acero Inoxidable (Mod. 2)</span>`;
             }
 
             updateBsCalculation(); 
         }
         
-        [nameInput, cityInput, descInput, manufacturingDaysInput, measureLength, measureHeight, measureDepth,
-         warrantyInput, compressorBrandInput, voltageInput].forEach(input => { 
-            input.addEventListener('input', updatePreview); 
-        });
+        [nameInput, cityInput, descInput].forEach(input => { input.addEventListener('input', updatePreview); });
 
         // --- CONFIGURACIÓN (GUARDAR/CARGAR) ---
         const CONFIG_KEY = 'neveras_product_config';
 
         function saveConfiguration() {
             const config = {
-                description: descInput.value.trim(),
-                measure_length: measureLength.value.trim(),
-                measure_height: measureHeight.value.trim(),
-                measure_depth: measureDepth.value.trim(),
-                warranty: warrantyInput.value.trim(),
-                compressor_brand: compressorBrandInput.value.trim(),
-                voltage: voltageInput.value.trim(),
-                compressor_image_url: compressorImageUrlInput.value.trim(),
-                immediate_delivery: immediateDeliveryCheck.checked,
-                manufacturing_days: manufacturingDaysInput.value,
-                markup_percentage: markupInput.value,
-                rating: ratingValue
+                exterior_model: document.querySelector('input[name="exterior_model"]:checked').value,
+                color_code: colorCodeInput.value,
+                markup_percentage: markupInput.value
             };
             localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
             showToast('✅ Configuración guardada');
@@ -592,107 +495,94 @@
 
         function loadConfiguration() {
             const stored = localStorage.getItem(CONFIG_KEY);
-            if (!stored) {
-                showToast('⚠️ No hay configuración guardada');
-                return;
+            if (!stored) return;
+            const config = JSON.parse(stored);
+            
+            if (config.exterior_model) {
+                Array.from(exteriorModelRadios).forEach(r => { r.checked = (r.value === config.exterior_model); });
+                document.querySelector('input[name="exterior_model"]:checked').dispatchEvent(new Event('change'));
             }
-            try {
-                const config = JSON.parse(stored);
-                descInput.value = config.description || '';
-                measureLength.value = config.measure_length || '';
-                measureHeight.value = config.measure_height || '';
-                measureDepth.value = config.measure_depth || '';
-                warrantyInput.value = config.warranty || '';
-                compressorBrandInput.value = config.compressor_brand || '';
-                voltageInput.value = config.voltage || '';
-                compressorImageUrlInput.value = config.compressor_image_url || '';
-                compressorImageUrlInput.dispatchEvent(new Event('input'));
-                immediateDeliveryCheck.checked = config.immediate_delivery || false;
-                immediateDeliveryCheck.dispatchEvent(new Event('change'));
-                manufacturingDaysInput.value = config.manufacturing_days || '';
-                markupInput.value = config.markup_percentage || '30';
-                ratingValue = config.rating || 5;
-                updateStarDisplay();
-                updatePreview();
-                showToast('✅ Configuración cargada');
-            } catch (e) {
-                showToast('❌ Error al cargar configuración');
+            if (config.color_code) {
+                const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${config.color_code}"]`);
+                if (swatchToSelect) swatchToSelect.click();
             }
+            markupInput.value = config.markup_percentage || '30';
+            updatePreview();
+            showToast('✅ Configuración cargada');
         }
-
         document.getElementById('saveConfigBtn').addEventListener('click', saveConfiguration);
         document.getElementById('loadConfigBtn').addEventListener('click', loadConfiguration);
 
+        // --- MANEJO DE IMÁGENES ---
+        const newImageUrlInput = document.getElementById('new_image_url');
+        const addUrlBtn = document.getElementById('addUrlBtn');
+        const galleryPreviewContainer = document.getElementById('galleryPreviewContainer');
+        const imageCount = document.getElementById('imageCount');
+
+        function renderGallery() {
+            galleryPreviewContainer.innerHTML = '';
+            imageCount.textContent = `${currentGalleryUrls.length}/10 añadidas`;
+            if (currentGalleryUrls.length > 0) { document.getElementById('previewImg').src = currentGalleryUrls[0]; }
+            currentGalleryUrls.forEach((url, index) => {
+                const div = document.createElement('div'); div.className = 'gallery-item';
+                div.innerHTML = `<img src="${url}"><button type="button" class="remove-btn" onclick="removeUrl(${index})">×</button>`;
+                galleryPreviewContainer.appendChild(div);
+            });
+        }
+        window.removeUrl = function(index) { currentGalleryUrls.splice(index, 1); renderGallery(); };
+
+        addUrlBtn.addEventListener('click', () => {
+            const url = newImageUrlInput.value.trim(); if (!url) return;
+            if (currentGalleryUrls.length >= 10) { showToast('⚠️ Máximo 10 imágenes'); return; }
+            currentGalleryUrls.push(url); newImageUrlInput.value = ''; renderGallery();
+        });
+
+        // --- GUARDAR Y CARGAR ---
+        const saveBtn = document.getElementById('saveProductBtn');
+        
+        function resetForm() {
+            nameInput.value = ''; cityInput.value = ''; descInput.value = ''; priceInput.value = ''; 
+            currentGalleryUrls = []; renderGallery(); editingId = null; updatePreview();
+        }
+
         function populateForm(product) {
-            nameInput.value = product.name; cityInput.value = product.city; descInput.value = product.description;
-            priceInput.value = product.price_usd; markupInput.value = product.markup_percentage !== undefined ? product.markup_percentage : 30; ratingValue = product.rating || 5;
+            nameInput.value = product.name || ''; cityInput.value = product.city || ''; descInput.value = product.description || '';
+            priceInput.value = product.price_usd || ''; markupInput.value = product.markup_percentage || 30;
             
-            immediateDeliveryCheck.checked = product.immediate_delivery || false;
-            manufacturingDaysInput.value = product.immediate_delivery ? '' : (product.manufacturing_days || '');
-            immediateDeliveryCheck.dispatchEvent(new Event('change'));
-
-            measureLength.value = product.measure_length || '';
-            measureHeight.value = product.measure_height || '';
-            measureDepth.value = product.measure_depth || '';
-
-            warrantyInput.value = product.warranty || '';
-            compressorBrandInput.value = product.compressor_brand || '';
-            voltageInput.value = product.voltage || '';
-            compressorImageUrlInput.value = product.compressor_image_url || '';
-            compressorImageUrlInput.dispatchEvent(new Event('input'));
+            // Cargar material y color
+            if (product.exterior_model) {
+                Array.from(exteriorModelRadios).forEach(r => { r.checked = (r.value === product.exterior_model); });
+                document.querySelector('input[name="exterior_model"]:checked').dispatchEvent(new Event('change'));
+            }
+            if (product.color_code) {
+                const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${product.color_code}"]`);
+                if (swatchToSelect) swatchToSelect.click();
+            }
 
             currentGalleryUrls = product.gallery || (product.image_url ? [product.image_url] : []);
-            renderGallery();
-            updateStarDisplay(); updatePreview();
+            renderGallery(); updatePreview();
         }
 
-        function resetForm() {
-            nameInput.value = ''; cityInput.value = ''; descInput.value = ''; priceInput.value = ''; markupInput.value = '30'; ratingValue = 5;
-            immediateDeliveryCheck.checked = false;
-            immediateDeliveryCheck.dispatchEvent(new Event('change'));
-            manufacturingDaysInput.value = '';
-            measureLength.value = ''; measureHeight.value = ''; measureDepth.value = '';
-            warrantyInput.value = ''; compressorBrandInput.value = ''; voltageInput.value = ''; compressorImageUrlInput.value = '';
-            compressorImageUrlInput.dispatchEvent(new Event('input'));
-            newImageUrlInput.value = ''; currentGalleryUrls = []; urlError.style.display = 'none'; renderGallery();
-            updateStarDisplay(); editingId = null;
-            document.getElementById('calculatedUsdMarkup').textContent = '—'; document.getElementById('calculatedBsValue').textContent = '—';
-            document.getElementById('previewBs').textContent = 'Bs —'; document.getElementById('previewUsd').textContent = '$0.00';
-            document.getElementById('previewDeliveryBadge').innerHTML = '';
-            previewDimensions.style.display = 'none'; previewTech.style.display = 'none';
-        }
-
-        function editProduct(id, products) { const product = products.find(p => p.id === id); if (!product) return; populateForm(product); editingId = id; modalTitle.textContent = 'Editar producto'; openModal(); }
+        function openModal() { document.getElementById('modalOverlay').classList.add('active'); updateBsCalculation(); }
+        function closeModal() { document.getElementById('modalOverlay').classList.remove('active'); resetForm(); }
+        document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+        document.getElementById('addProductBtn').addEventListener('click', () => { resetForm(); openModal(); });
 
         saveBtn.addEventListener('click', async () => {
-            const name = nameInput.value.trim(); const city = cityInput.value.trim(); const description = descInput.value.trim();
-            const price_usd = parseFloat(priceInput.value); const markup_percentage = parseFloat(markupInput.value);
-            const immediate_delivery = immediateDeliveryCheck.checked;
-            const manufacturing_days = immediate_delivery ? 0 : parseInt(manufacturingDaysInput.value);
-            const measure_length = measureLength.value.trim();
-            const measure_height = measureHeight.value.trim();
-            const measure_depth = measureDepth.value.trim();
-            const warranty = warrantyInput.value.trim();
-            const compressor_brand = compressorBrandInput.value.trim();
-            const voltage = voltageInput.value.trim();
-            const compressor_image_url = compressorImageUrlInput.value.trim();
+            const name = nameInput.value.trim(); const city = cityInput.value.trim();
+            const price_usd = parseFloat(priceInput.value);
+            const exterior_model = document.querySelector('input[name="exterior_model"]:checked').value;
+            const color_code = exterior_model === 'Modelo 1' ? colorCodeInput.value : null;
 
-            if (!name || !city || isNaN(price_usd) || isNaN(markup_percentage)) { 
-                showToast('Completa nombre, ciudad, precio USD y recargo'); return; 
-            }
-            if (!immediate_delivery && (!manufacturing_days || manufacturing_days <= 0)) {
-                showToast('Por favor indica los días de fabricación o marca Entrega Inmediata'); return;
-            }
+            if (!name || !city || isNaN(price_usd)) { showToast('Completa campos obligatorios'); return; }
 
             saveBtn.textContent = "Guardando..."; saveBtn.disabled = true;
             const mainImageUrl = currentGalleryUrls.length > 0 ? currentGalleryUrls[0] : '';
             
             const payload = { 
-                name, city, description, price_usd, markup_percentage, 
-                immediate_delivery, manufacturing_days, 
-                measure_length, measure_height, measure_depth,
-                warranty, compressor_brand, voltage, compressor_image_url,
-                image_url: mainImageUrl, gallery: currentGalleryUrls, rating: ratingValue 
+                name, city, description: descInput.value, price_usd, markup_percentage: parseFloat(markupInput.value),
+                exterior_model, color_code,
+                image_url: mainImageUrl, gallery: currentGalleryUrls
             };
             
             let error;
@@ -704,74 +594,73 @@
 
             saveBtn.textContent = "Guardar Equipo"; saveBtn.disabled = false;
             if (error) { showToast('Error: ' + error.message); } 
-            else { showToast(editingId ? 'Actualizado' : 'Creado'); closeModal(); await withConnectionCheck(async () => { await loadProductsDashboard(); await loadCatalog(); }); }
+            else { showToast('Guardado con éxito'); closeModal(); loadProductsDashboard(); loadCatalog(); }
         });
 
         async function deleteProduct(id) {
-            if (!confirm('¿Eliminar este producto?')) return;
-            const { error } = await supabaseClient.from('products').delete().eq('id', id);
-            if (error) showToast('Error al eliminar'); else { showToast('Eliminado'); await withConnectionCheck(async () => { await loadProductsDashboard(); await loadCatalog(); }); }
+            if (!confirm('¿Eliminar producto?')) return;
+            await supabaseClient.from('products').delete().eq('id', id);
+            loadProductsDashboard(); loadCatalog();
         }
 
-        // --- Catálogo ---
+        async function loadProductsDashboard() {
+            const { data } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
+            const list = document.getElementById('productList');
+            if (!data || !data.length) { list.innerHTML = '<div class="empty-state">No hay productos</div>'; return; }
+            
+            list.innerHTML = data.map(p => {
+                const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/50');
+                const modelBadge = p.exterior_model === 'Modelo 1' 
+                    ? `🛡️ Mod. 1 <div class="color-dot" style="background-color:${p.color_code || '#fff'}; display:inline-block; vertical-align:middle;"></div>` 
+                    : `✨ Full Acero`;
+                return `
+                    <div class="product-item">
+                        <img src="${mainImg}">
+                        <div class="product-info">
+                            <div class="title">${p.name}</div>
+                            <div class="meta"><span>📍 ${p.city}</span><span>${formatUsd(p.price_usd)}</span><span>${modelBadge}</span></div>
+                        </div>
+                        <div class="actions">
+                            <button class="btn small secondary" onclick="editProduct('${p.id}')">Editar</button>
+                            <button class="btn small danger" onclick="deleteProduct('${p.id}')">X</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('productsCount').textContent = data.length;
+            window.currentProductsData = data;
+        }
+
+        window.editProduct = function(id) {
+            const product = window.currentProductsData.find(p => p.id === id);
+            if (product) { populateForm(product); editingId = id; openModal(); }
+        };
+
         async function loadCatalog() {
-            const container = document.getElementById('catalogContainer'); container.innerHTML = '<div class="spinner"></div>';
-            const { data, error } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
-            if (error) { container.innerHTML = '<div class="empty-state">Error</div>'; return; }
-            if (!data.length) { container.innerHTML = '<div class="empty-state">No hay productos</div>'; return; }
+            const container = document.getElementById('catalogContainer');
+            const { data } = await supabaseClient.from('products').select('*').order('created_at', { ascending: false });
+            if (!data || !data.length) { container.innerHTML = '<div class="empty-state">No hay productos</div>'; return; }
             
             const rate = await getBCVRate();
             container.innerHTML = data.map(p => {
-                const productMarkup = p.markup_percentage !== undefined ? p.markup_percentage : 30;
-                const bs = p.price_usd * rate * (1 + (productMarkup / 100));
-                const starsHtml = '★'.repeat(p.rating || 5) + '☆'.repeat(5 - (p.rating || 5));
-                const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/400x200/f0f0f5/999?text=Sin+imagen');
-                const badgeHtml = p.gallery && p.gallery.length > 1 ? `<div class="gallery-badge">📸 ${p.gallery.length}</div>` : '';
-
-                let deliveryBadgeHtml = '';
-                if (p.immediate_delivery) {
-                    deliveryBadgeHtml = '<div class="delivery-badge immediate" style="margin-bottom:0;">⚡ Entrega Inmediata</div>';
-                } else if (p.manufacturing_days) {
-                    deliveryBadgeHtml = `<div class="delivery-badge delayed" style="margin-bottom:0;">⏳ Fab: ${p.manufacturing_days} días</div>`;
-                }
-
-                let dimsHtml = '';
-                if (p.measure_length || p.measure_height || p.measure_depth) {
-                    dimsHtml = `<div class="dimensions">📏 L: ${p.measure_length||'-'} × A: ${p.measure_height||'-'} × P: ${p.measure_depth||'-'}</div>`;
-                }
-
-                let techHtml = '';
-                if (p.warranty || p.compressor_brand || p.voltage) {
-                    const parts = [
-                        p.warranty ? `Garantía: ${p.warranty}` : '',
-                        p.compressor_brand ? `Compresor: ${p.compressor_brand}` : '',
-                        p.voltage ? `Voltaje: ${p.voltage}` : ''
-                    ].filter(Boolean);
-                    techHtml = `<div class="preview-tech" style="display:block; font-size:13px; color:#555; margin-bottom:6px;">${parts.join(' | ')}</div>`;
-                }
-
-                let compressorImgHtml = '';
-                if (p.compressor_image_url) {
-                    compressorImgHtml = `<img src="${p.compressor_image_url}" style="width:100%; max-width:200px; height:auto; border-radius:8px; margin-bottom:8px;" onerror="this.style.display='none'">`;
+                const bs = p.price_usd * rate * (1 + ((p.markup_percentage||30) / 100));
+                const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/400x200');
+                
+                let designHtml = '';
+                if (p.exterior_model === 'Modelo 1') {
+                    designHtml = `<div class="design-tags"><span class="design-tag">🛡️ Laterales Pintados</span><span class="design-tag"><div class="color-dot" style="background-color: ${p.color_code};"></div> Color</span></div>`;
+                } else if (p.exterior_model === 'Modelo 2') {
+                    designHtml = `<div class="design-tags"><span class="design-tag">✨ Full Acero Inoxidable</span></div>`;
                 }
 
                 return `
                     <div class="product-card">
-                        <div class="product-card-img-container">
-                            <img src="${mainImg}" alt="${p.name}">
-                            ${badgeHtml}
-                        </div>
+                        <div class="product-card-img-container"><img src="${mainImg}"></div>
                         <div class="product-info">
-                            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                                <h3>${p.name}</h3>
-                                ${deliveryBadgeHtml}
-                            </div>
-                            ${dimsHtml}
-                            ${techHtml}
-                            ${compressorImgHtml}
+                            <h3>${p.name}</h3>
+                            ${designHtml}
                             <div class="city">📍 ${p.city}</div>
                             <div class="desc">${p.description || ''}</div>
-                            <div class="rating-stars">${starsHtml}</div>
                             <div class="prices"><span class="price-usd">${formatUsd(p.price_usd)}</span><span class="price-bs">${formatBs(bs)}</span></div>
                         </div>
                     </div>
@@ -782,7 +671,6 @@
         document.getElementById('dashboardTab').addEventListener('click', () => { 
             document.getElementById('dashboardPage').classList.add('active'); document.getElementById('catalogPage').classList.remove('active');
             document.getElementById('dashboardTab').classList.add('active'); document.getElementById('catalogTab').classList.remove('active');
-            loadProductsDashboard();
         });
         document.getElementById('catalogTab').addEventListener('click', () => { 
             document.getElementById('catalogPage').classList.add('active'); document.getElementById('dashboardPage').classList.remove('active');
