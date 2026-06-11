@@ -64,17 +64,13 @@
         .price-usd { font-size: 18px; font-weight: 700; color: var(--green); }
         .price-bs { font-size: 16px; font-weight: 600; color: #4a4a4a; }
         .rating-stars { font-size: 16px; color: var(--yellow); letter-spacing: 2px; margin-bottom: 8px; }
-        
-        .delivery-badge { display: inline-flex; align-items: center; gap: 4px; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-        .delivery-badge.immediate { background: #e5f9e7; color: #1e7e34; }
-        .delivery-badge.delayed { background: #fff3cd; color: #856404; }
 
         .form-group { margin-bottom: 18px; text-align: left; }
         .form-group label { display: block; font-size: 14px; font-weight: 600; color: var(--secondary); margin-bottom: 8px; margin-left: 4px; }
-        .form-group input:not([type="checkbox"]):not([type="radio"]), .form-group textarea { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #e5e5ea; background: #fafafa; font-size: 16px; color: var(--text); transition: all var(--transition); font-family: inherit; -webkit-appearance: none; }
+        .form-group input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), .form-group textarea { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid #e5e5ea; background: #fafafa; font-size: 16px; color: var(--text); transition: all var(--transition); font-family: inherit; -webkit-appearance: none; }
         .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--blue); background: #ffffff; box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.15); }
 
-        /* Estilos de Selección de Modelo y Color */
+        /* Material y Color */
         .radio-group { background: #fafafa; border: 1px solid #e5e5ea; border-radius: 14px; padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
         .radio-option { display: flex; align-items: center; gap: 10px; font-size: 15px; cursor: pointer; }
         .radio-option input[type="radio"] { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
@@ -83,6 +79,12 @@
         .color-swatch { width: 38px; height: 38px; border-radius: 50%; border: 2px solid #ddd; cursor: pointer; transition: all 0.2s; position: relative; }
         .color-swatch.active { border-color: var(--blue); transform: scale(1.15); box-shadow: 0 0 0 2px rgba(0,122,255,0.3); }
         .color-swatch.active::after { content: '✓'; position: absolute; color: white; font-weight: bold; font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        
+        /* Botón de color personalizado */
+        .custom-color-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; background: #f0f0f5; border: 1px solid #e5e5ea; color: var(--text); margin-top: 12px; transition: all 0.2s; position: relative; overflow: hidden; }
+        .custom-color-btn:active { transform: scale(0.96); }
+        .custom-color-btn .wheel { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); border: 1px solid rgba(0,0,0,0.1); }
+        .custom-color-btn input[type="color"] { position: absolute; opacity: 0; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; }
 
         .price-grid, .measure-grid, .tech-grid { display: grid; gap: 8px; }
         .price-grid { grid-template-columns: 1.5fr 1fr; margin-bottom: 4px; }
@@ -203,7 +205,7 @@
                 <textarea id="description" placeholder="Detalles del compresor, estado, accesorios..." rows="3"></textarea>
             </div>
 
-            <!-- SECCIÓN NUEVA: MATERIALES Y COLORES -->
+            <!-- MATERIALES Y COLORES -->
             <div class="form-group">
                 <label>Acabado Exterior (Material)</label>
                 <div class="radio-group">
@@ -220,74 +222,52 @@
 
             <div class="form-group" id="colorSection">
                 <label>Color de Pintura (Aplicable al Modelo 1)</label>
+                
                 <div class="color-palette" id="colorPaletteContainer">
-                    <!-- Los colores se generan por JS -->
+                    <!-- Paleta generada por JS -->
                 </div>
+                
+                <!-- NUEVO: Selector de color libre -->
+                <div class="custom-color-btn">
+                    <div class="wheel"></div>
+                    Elegir otro color...
+                    <input type="color" id="customColorPicker" value="#000000">
+                </div>
+
                 <input type="hidden" id="color_code" value="#FFFFFF">
-                <div id="colorNameDisplay" style="font-size: 13px; color: var(--secondary); margin-top: 4px;">Seleccionado: Blanco</div>
+                <div id="colorNameDisplay" style="font-size: 14px; font-weight: 600; color: var(--blue); margin-top: 8px;">Seleccionado: Blanco Clásico</div>
             </div>
-            <!-- FIN SECCIÓN NUEVA -->
 
             <div class="form-group">
                 <label>Dimensiones del Equipo</label>
                 <div class="measure-grid">
-                    <div class="form-group">
-                        <label>Largo (↔️)</label>
-                        <input type="text" id="measure_length" placeholder="Ej: 2m">
-                    </div>
-                    <div class="form-group">
-                        <label>Alto (↕️)</label>
-                        <input type="text" id="measure_height" placeholder="Ej: 1.8m">
-                    </div>
-                    <div class="form-group">
-                        <label>Profundidad (↗️)</label>
-                        <input type="text" id="measure_depth" placeholder="Ej: 80cm">
-                    </div>
+                    <div class="form-group"><label>Largo (↔️)</label><input type="text" id="measure_length" placeholder="Ej: 2m"></div>
+                    <div class="form-group"><label>Alto (↕️)</label><input type="text" id="measure_height" placeholder="Ej: 1.8m"></div>
+                    <div class="form-group"><label>Prof (↗️)</label><input type="text" id="measure_depth" placeholder="Ej: 80cm"></div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Especificaciones Técnicas</label>
                 <div class="tech-grid">
-                    <div class="form-group">
-                        <label>Garantía</label>
-                        <input type="text" id="warranty" placeholder="Ej: 6 meses">
-                    </div>
-                    <div class="form-group">
-                        <label>Marca Compresor</label>
-                        <input type="text" id="compressor_brand" placeholder="Ej: Embraco">
-                    </div>
-                    <div class="form-group">
-                        <label>Voltaje</label>
-                        <input type="text" id="voltage" placeholder="Ej: 110V">
-                    </div>
+                    <div class="form-group"><label>Garantía</label><input type="text" id="warranty" placeholder="Ej: 6 meses"></div>
+                    <div class="form-group"><label>Compresor</label><input type="text" id="compressor_brand" placeholder="Ej: Embraco"></div>
+                    <div class="form-group"><label>Voltaje</label><input type="text" id="voltage" placeholder="Ej: 110V"></div>
                 </div>
             </div>
 
             <div class="form-group">
                 <label>Disponibilidad</label>
                 <div class="toggle-container">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="immediate_delivery">
-                        <span class="slider"></span>
-                    </label>
+                    <label class="toggle-switch"><input type="checkbox" id="immediate_delivery"><span class="slider"></span></label>
                     <span class="toggle-label">Para entrega inmediata ⚡</span>
                 </div>
-                
-                <div id="days_container">
-                    <input type="number" id="manufacturing_days" placeholder="Ej: 15 (Días hábiles de fabricación)" min="1">
-                </div>
+                <div id="days_container"><input type="number" id="manufacturing_days" placeholder="Ej: 15 (Días hábiles)" min="1"></div>
             </div>
             
             <div class="price-grid">
-                <div class="form-group">
-                    <label>Precio Contado (USD)</label>
-                    <input type="number" id="price_usd" step="0.01" placeholder="Ej: 1000" required>
-                </div>
-                <div class="form-group">
-                    <label>Recargo (%)</label>
-                    <input type="number" id="markup_percentage" step="1" value="30" required>
-                </div>
+                <div class="form-group"><label>Precio Contado (USD)</label><input type="number" id="price_usd" step="0.01" required></div>
+                <div class="form-group"><label>Recargo (%)</label><input type="number" id="markup_percentage" step="1" value="30" required></div>
             </div>
             
             <div class="calculated-field" id="bsPreviewField">
@@ -340,20 +320,16 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Configuración Supabase
         const SUPABASE_URL = 'https://hjhnqitgblpucdihwbyl.supabase.co';
         const SUPABASE_SERVICE_ROLE = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaG5xaXRnYmxwdWNkaWh3YnlsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MDk2MTA2MywiZXhwIjoyMDk2NTM3MDYzfQ.e9KjV1j50pu5WAvYBfJWyxb9n_Wl93_waZjI3j1cRog';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE, { auth: { persistSession: false } });
 
-        let editingId = null;
-        let bcvRate = null, bcvTimestamp = 0;
-        const CACHE_DURATION = 30 * 60 * 1000;
-        let currentGalleryUrls = [];
+        let editingId = null, bcvRate = null, bcvTimestamp = 0, currentGalleryUrls = [];
 
-        // --- PALETA DE COLORES (Extensible) ---
+        // --- PALETA DE COLORES ---
         const companyColors = [
             { name: "Blanco Clásico", hex: "#FFFFFF" },
-            { name: "Negro Mate", hex: "#1c1c1e" },
+            { name: "Negro Mate", hex: "#1C1C1E" },
             { name: "Rojo Carnicero", hex: "#D32F2F" },
             { name: "Azul Rey", hex: "#1976D2" },
             { name: "Gris Plata", hex: "#9E9E9E" },
@@ -365,6 +341,9 @@
         const colorNameDisplay = document.getElementById('colorNameDisplay');
         const exteriorModelRadios = document.getElementsByName('exterior_model');
         const colorSection = document.getElementById('colorSection');
+        const customColorPicker = document.getElementById('customColorPicker');
+
+        let lastKnownColorName = "Blanco Clásico";
 
         function initColorPalette() {
             colorPaletteContainer.innerHTML = '';
@@ -373,12 +352,12 @@
                 swatch.className = 'color-swatch' + (index === 0 ? ' active' : '');
                 swatch.style.backgroundColor = c.hex;
                 swatch.dataset.hex = c.hex;
-                swatch.dataset.name = c.name;
                 
                 swatch.addEventListener('click', () => {
                     document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
                     swatch.classList.add('active');
                     colorCodeInput.value = c.hex;
+                    lastKnownColorName = c.name;
                     colorNameDisplay.textContent = `Seleccionado: ${c.name}`;
                     updatePreview();
                 });
@@ -388,37 +367,50 @@
         }
         initColorPalette();
 
-        // Mostrar/Ocultar colores dependiendo del modelo
+        // --- BÚSQUEDA AUTOMÁTICA DE NOMBRE DE COLOR (API) ---
+        async function fetchColorName(hex) {
+            colorNameDisplay.textContent = `Seleccionado: Buscando nombre...`;
+            try {
+                // Eliminamos el '#' del hex para la URL de la API
+                const cleanHex = hex.replace('#', '');
+                const response = await fetch(`https://www.thecolorapi.com/id?hex=${cleanHex}`);
+                const data = await response.json();
+                
+                const fetchedName = data.name.value; // ej: "Crimson"
+                lastKnownColorName = `${fetchedName} (Personalizado)`;
+                colorNameDisplay.textContent = `Seleccionado: ${lastKnownColorName}`;
+                updatePreview();
+            } catch (error) {
+                lastKnownColorName = `Personalizado (${hex})`;
+                colorNameDisplay.textContent = `Seleccionado: ${lastKnownColorName}`;
+                updatePreview();
+            }
+        }
+
+        // Lógica al usar el input libre
+        customColorPicker.addEventListener('change', (e) => {
+            const hex = e.target.value.toUpperCase();
+            colorCodeInput.value = hex;
+            
+            // Quitar selección de la paleta rápida
+            document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+            
+            fetchColorName(hex);
+        });
+
+        // Visibilidad según modelo
         Array.from(exteriorModelRadios).forEach(radio => {
             radio.addEventListener('change', () => {
                 if(radio.value === 'Modelo 2') {
-                    colorSection.style.opacity = '0.5';
-                    colorSection.style.pointerEvents = 'none';
+                    colorSection.style.opacity = '0.5'; colorSection.style.pointerEvents = 'none';
                 } else {
-                    colorSection.style.opacity = '1';
-                    colorSection.style.pointerEvents = 'auto';
+                    colorSection.style.opacity = '1'; colorSection.style.pointerEvents = 'auto';
                 }
                 updatePreview();
             });
         });
 
-        // --- Lógica general UI ---
-        const connectionBadge = document.getElementById('connectionBadge');
-        const connectionText = document.getElementById('connectionText');
-
-        async function checkConnection() {
-            try {
-                const { error } = await supabaseClient.from('products').select('count', { count: 'exact', head: true });
-                if (error) throw error;
-                connectionBadge.className = 'connection-badge connected'; connectionText.textContent = 'Conectado';
-            } catch (e) { connectionBadge.className = 'connection-badge disconnected'; connectionText.textContent = 'Error'; }
-        }
-        checkConnection();
-        function showToast(msg) {
-            const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('visible');
-            setTimeout(() => t.classList.remove('visible'), 2500);
-        }
-
+        // --- Tasa BCV y UI ---
         async function getBCVRate() {
             if (bcvRate && (Date.now() - bcvTimestamp < CACHE_DURATION)) return bcvRate;
             try {
@@ -431,37 +423,28 @@
         }
         function formatUsd(v) { return '$' + Number(v).toFixed(2); }
         function formatBs(v) { return 'Bs ' + Number(v).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('visible'); setTimeout(() => t.classList.remove('visible'), 2500); }
 
-        // --- DOM Elements ---
-        const nameInput = document.getElementById('name'); 
-        const cityInput = document.getElementById('city'); 
-        const descInput = document.getElementById('description');
-        const priceInput = document.getElementById('price_usd'); 
+        const nameInput = document.getElementById('name'); const cityInput = document.getElementById('city'); 
+        const descInput = document.getElementById('description'); const priceInput = document.getElementById('price_usd'); 
         const markupInput = document.getElementById('markup_percentage');
-        const immediateDeliveryCheck = document.getElementById('immediate_delivery');
-        const manufacturingDaysInput = document.getElementById('manufacturing_days');
-        
+
         async function updateBsCalculation() {
-            const usd = parseFloat(priceInput.value) || 0;
-            const markup = parseFloat(markupInput.value) || 0;
+            const usd = parseFloat(priceInput.value) || 0; const markup = parseFloat(markupInput.value) || 0;
             const rate = await getBCVRate();
             document.getElementById('currentBcvRate').textContent = formatBs(rate);
-            
             if (usd > 0) {
                 const totalBs = usd * (1 + (markup / 100)) * rate;
                 document.getElementById('calculatedBsValue').textContent = formatBs(totalBs);
-                document.getElementById('previewUsd').textContent = formatUsd(usd); 
-                document.getElementById('previewBs').textContent = formatBs(totalBs);
+                document.getElementById('previewUsd').textContent = formatUsd(usd); document.getElementById('previewBs').textContent = formatBs(totalBs);
             }
         }
-        priceInput.addEventListener('input', updateBsCalculation);
-        markupInput.addEventListener('input', updateBsCalculation);
+        priceInput.addEventListener('input', updateBsCalculation); markupInput.addEventListener('input', updateBsCalculation);
 
         function updatePreview() { 
             document.getElementById('previewName').textContent = nameInput.value || 'Nombre del producto'; 
             document.getElementById('previewCity').textContent = '📍 ' + (cityInput.value || 'Ciudad'); 
             
-            // Actualizar tags de Diseño en la previsualización
             const selectedModel = document.querySelector('input[name="exterior_model"]:checked').value;
             const designTagsContainer = document.getElementById('previewDesignTags');
             
@@ -469,59 +452,53 @@
                 const hex = colorCodeInput.value;
                 designTagsContainer.innerHTML = `
                     <span class="design-tag">🛡️ Modelo 1</span>
-                    <span class="design-tag"><div class="color-dot" style="background-color: ${hex};"></div> Color Pintura</span>
+                    <span class="design-tag" title="${lastKnownColorName}"><div class="color-dot" style="background-color: ${hex};"></div> ${lastKnownColorName.split(' ')[0]}</span>
                 `;
             } else {
-                designTagsContainer.innerHTML = `<span class="design-tag">✨ Full Acero Inoxidable (Mod. 2)</span>`;
+                designTagsContainer.innerHTML = `<span class="design-tag">✨ Full Acero Inoxidable</span>`;
             }
-
             updateBsCalculation(); 
         }
-        
         [nameInput, cityInput, descInput].forEach(input => { input.addEventListener('input', updatePreview); });
 
-        // --- CONFIGURACIÓN (GUARDAR/CARGAR) ---
+        // --- Configuración Cargar/Guardar ---
         const CONFIG_KEY = 'neveras_product_config';
-
         function saveConfiguration() {
-            const config = {
-                exterior_model: document.querySelector('input[name="exterior_model"]:checked').value,
-                color_code: colorCodeInput.value,
-                markup_percentage: markupInput.value
-            };
-            localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-            showToast('✅ Configuración guardada');
+            const config = { exterior_model: document.querySelector('input[name="exterior_model"]:checked').value, color_code: colorCodeInput.value, markup_percentage: markupInput.value };
+            localStorage.setItem(CONFIG_KEY, JSON.stringify(config)); showToast('✅ Configuración guardada');
         }
-
         function loadConfiguration() {
-            const stored = localStorage.getItem(CONFIG_KEY);
-            if (!stored) return;
+            const stored = localStorage.getItem(CONFIG_KEY); if (!stored) return;
             const config = JSON.parse(stored);
-            
             if (config.exterior_model) {
                 Array.from(exteriorModelRadios).forEach(r => { r.checked = (r.value === config.exterior_model); });
                 document.querySelector('input[name="exterior_model"]:checked').dispatchEvent(new Event('change'));
             }
-            if (config.color_code) {
-                const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${config.color_code}"]`);
-                if (swatchToSelect) swatchToSelect.click();
-            }
-            markupInput.value = config.markup_percentage || '30';
-            updatePreview();
-            showToast('✅ Configuración cargada');
+            if (config.color_code) { setColorByHex(config.color_code); }
+            markupInput.value = config.markup_percentage || '30'; updatePreview(); showToast('✅ Configuración cargada');
         }
         document.getElementById('saveConfigBtn').addEventListener('click', saveConfiguration);
         document.getElementById('loadConfigBtn').addEventListener('click', loadConfiguration);
 
-        // --- MANEJO DE IMÁGENES ---
-        const newImageUrlInput = document.getElementById('new_image_url');
-        const addUrlBtn = document.getElementById('addUrlBtn');
-        const galleryPreviewContainer = document.getElementById('galleryPreviewContainer');
-        const imageCount = document.getElementById('imageCount');
+        // Función auxiliar para setear el color al cargar un producto o config
+        function setColorByHex(hexCode) {
+            colorCodeInput.value = hexCode;
+            const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${hexCode.toUpperCase()}"]`);
+            if (swatchToSelect) {
+                swatchToSelect.click();
+            } else {
+                // Era un color personalizado
+                document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+                customColorPicker.value = hexCode;
+                fetchColorName(hexCode);
+            }
+        }
 
+        // --- Manejo de Imágenes ---
+        const newImageUrlInput = document.getElementById('new_image_url'); const addUrlBtn = document.getElementById('addUrlBtn');
+        const galleryPreviewContainer = document.getElementById('galleryPreviewContainer'); const imageCount = document.getElementById('imageCount');
         function renderGallery() {
-            galleryPreviewContainer.innerHTML = '';
-            imageCount.textContent = `${currentGalleryUrls.length}/10 añadidas`;
+            galleryPreviewContainer.innerHTML = ''; imageCount.textContent = `${currentGalleryUrls.length}/10 añadidas`;
             if (currentGalleryUrls.length > 0) { document.getElementById('previewImg').src = currentGalleryUrls[0]; }
             currentGalleryUrls.forEach((url, index) => {
                 const div = document.createElement('div'); div.className = 'gallery-item';
@@ -530,34 +507,30 @@
             });
         }
         window.removeUrl = function(index) { currentGalleryUrls.splice(index, 1); renderGallery(); };
-
         addUrlBtn.addEventListener('click', () => {
             const url = newImageUrlInput.value.trim(); if (!url) return;
             if (currentGalleryUrls.length >= 10) { showToast('⚠️ Máximo 10 imágenes'); return; }
             currentGalleryUrls.push(url); newImageUrlInput.value = ''; renderGallery();
         });
 
-        // --- GUARDAR Y CARGAR ---
+        // --- CRUD ---
         const saveBtn = document.getElementById('saveProductBtn');
-        
         function resetForm() {
             nameInput.value = ''; cityInput.value = ''; descInput.value = ''; priceInput.value = ''; 
-            currentGalleryUrls = []; renderGallery(); editingId = null; updatePreview();
+            currentGalleryUrls = []; renderGallery(); editingId = null; 
+            document.querySelector('.color-swatch').click(); // volver a blanco
+            updatePreview();
         }
 
         function populateForm(product) {
             nameInput.value = product.name || ''; cityInput.value = product.city || ''; descInput.value = product.description || '';
             priceInput.value = product.price_usd || ''; markupInput.value = product.markup_percentage || 30;
             
-            // Cargar material y color
             if (product.exterior_model) {
                 Array.from(exteriorModelRadios).forEach(r => { r.checked = (r.value === product.exterior_model); });
                 document.querySelector('input[name="exterior_model"]:checked').dispatchEvent(new Event('change'));
             }
-            if (product.color_code) {
-                const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${product.color_code}"]`);
-                if (swatchToSelect) swatchToSelect.click();
-            }
+            if (product.color_code) { setColorByHex(product.color_code); }
 
             currentGalleryUrls = product.gallery || (product.image_url ? [product.image_url] : []);
             renderGallery(); updatePreview();
@@ -569,8 +542,7 @@
         document.getElementById('addProductBtn').addEventListener('click', () => { resetForm(); openModal(); });
 
         saveBtn.addEventListener('click', async () => {
-            const name = nameInput.value.trim(); const city = cityInput.value.trim();
-            const price_usd = parseFloat(priceInput.value);
+            const name = nameInput.value.trim(); const city = cityInput.value.trim(); const price_usd = parseFloat(priceInput.value);
             const exterior_model = document.querySelector('input[name="exterior_model"]:checked').value;
             const color_code = exterior_model === 'Modelo 1' ? colorCodeInput.value : null;
 
@@ -581,8 +553,7 @@
             
             const payload = { 
                 name, city, description: descInput.value, price_usd, markup_percentage: parseFloat(markupInput.value),
-                exterior_model, color_code,
-                image_url: mainImageUrl, gallery: currentGalleryUrls
+                exterior_model, color_code, image_url: mainImageUrl, gallery: currentGalleryUrls
             };
             
             let error;
@@ -599,8 +570,7 @@
 
         async function deleteProduct(id) {
             if (!confirm('¿Eliminar producto?')) return;
-            await supabaseClient.from('products').delete().eq('id', id);
-            loadProductsDashboard(); loadCatalog();
+            await supabaseClient.from('products').delete().eq('id', id); loadProductsDashboard(); loadCatalog();
         }
 
         async function loadProductsDashboard() {
@@ -648,7 +618,7 @@
                 
                 let designHtml = '';
                 if (p.exterior_model === 'Modelo 1') {
-                    designHtml = `<div class="design-tags"><span class="design-tag">🛡️ Laterales Pintados</span><span class="design-tag"><div class="color-dot" style="background-color: ${p.color_code};"></div> Color</span></div>`;
+                    designHtml = `<div class="design-tags"><span class="design-tag">🛡️ Laterales Pintados</span><span class="design-tag"><div class="color-dot" style="background-color: ${p.color_code};"></div> Color Personalizado</span></div>`;
                 } else if (p.exterior_model === 'Modelo 2') {
                     designHtml = `<div class="design-tags"><span class="design-tag">✨ Full Acero Inoxidable</span></div>`;
                 }
