@@ -56,8 +56,10 @@
         .product-card .desc { font-size: 14px; color: #3a3a3c; margin-bottom: 8px; }
         
         .design-tags { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
-        .design-tag { background: #f0f0f5; color: #3a3a3c; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; border: 1px solid #e5e5ea; }
-        .color-dot { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.1); }
+        .design-tag { background: #f0f0f5; color: #3a3a3c; font-size: 12px; padding: 4px 10px; border-radius: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; border: 1px solid #e5e5ea; }
+        
+        /* CORRECCIÓN DE ESTILO: Forzar que el círculo no se colapse ni desaparezca */
+        .color-dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.2); display: inline-block; flex-shrink: 0; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1); }
         
         .product-card .dimensions { font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 10px; background: #f0f8ff; display: inline-block; padding: 4px 8px; border-radius: 8px; }
         .prices { display: flex; justify-content: space-between; align-items: center; }
@@ -81,9 +83,9 @@
         .color-swatch.active::after { content: '✓'; position: absolute; color: white; font-weight: bold; font-size: 14px; top: 50%; left: 50%; transform: translate(-50%, -50%); text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
         
         /* Botón de color personalizado */
-        .custom-color-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; cursor: pointer; background: #f0f0f5; border: 1px solid #e5e5ea; color: var(--text); margin-top: 12px; transition: all 0.2s; position: relative; overflow: hidden; }
+        .custom-color-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; background: #f0f0f5; border: 1px solid #e5e5ea; color: var(--text); margin-top: 12px; transition: all 0.2s; position: relative; overflow: hidden; }
         .custom-color-btn:active { transform: scale(0.96); }
-        .custom-color-btn .wheel { width: 18px; height: 18px; border-radius: 50%; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); border: 1px solid rgba(0,0,0,0.1); }
+        .custom-color-btn .wheel { width: 20px; height: 20px; border-radius: 50%; background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red); border: 1px solid rgba(0,0,0,0.15); flex-shrink: 0; transition: background 0.2s; }
         .custom-color-btn input[type="color"] { position: absolute; opacity: 0; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer; }
 
         .price-grid, .measure-grid, .tech-grid { display: grid; gap: 8px; }
@@ -179,7 +181,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-sheet">
             <div class="modal-handle"></div>
@@ -205,7 +206,6 @@
                 <textarea id="description" placeholder="Detalles del compresor, estado, accesorios..." rows="3"></textarea>
             </div>
 
-            <!-- MATERIALES Y COLORES -->
             <div class="form-group">
                 <label>Acabado Exterior (Material)</label>
                 <div class="radio-group">
@@ -224,14 +224,12 @@
                 <label>Color de Pintura (Aplicable al Modelo 1)</label>
                 
                 <div class="color-palette" id="colorPaletteContainer">
-                    <!-- Paleta generada por JS -->
-                </div>
+                    </div>
                 
-                <!-- NUEVO: Selector de color libre -->
                 <div class="custom-color-btn">
-                    <div class="wheel"></div>
+                    <div class="wheel" id="customColorWheel"></div>
                     Elegir otro color...
-                    <input type="color" id="customColorPicker" value="#000000">
+                    <input type="color" id="customColorPicker" value="#FFFFFF">
                 </div>
 
                 <input type="hidden" id="color_code" value="#FFFFFF">
@@ -342,6 +340,7 @@
         const exteriorModelRadios = document.getElementsByName('exterior_model');
         const colorSection = document.getElementById('colorSection');
         const customColorPicker = document.getElementById('customColorPicker');
+        const customColorWheel = document.getElementById('customColorWheel');
 
         let lastKnownColorName = "Blanco Clásico";
 
@@ -357,6 +356,7 @@
                     document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
                     swatch.classList.add('active');
                     colorCodeInput.value = c.hex;
+                    customColorWheel.style.background = 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)'; // Reset wheel
                     lastKnownColorName = c.name;
                     colorNameDisplay.textContent = `Seleccionado: ${c.name}`;
                     updatePreview();
@@ -369,15 +369,16 @@
 
         // --- BÚSQUEDA AUTOMÁTICA DE NOMBRE DE COLOR (API) ---
         async function fetchColorName(hex) {
-            colorNameDisplay.textContent = `Seleccionado: Buscando nombre...`;
             try {
-                // Eliminamos el '#' del hex para la URL de la API
                 const cleanHex = hex.replace('#', '');
                 const response = await fetch(`https://www.thecolorapi.com/id?hex=${cleanHex}`);
                 const data = await response.json();
                 
-                const fetchedName = data.name.value; // ej: "Crimson"
-                lastKnownColorName = `${fetchedName} (Personalizado)`;
+                if (data && data.name && data.name.value) {
+                    lastKnownColorName = data.name.value;
+                } else {
+                    lastKnownColorName = `Personalizado (${hex})`;
+                }
                 colorNameDisplay.textContent = `Seleccionado: ${lastKnownColorName}`;
                 updatePreview();
             } catch (error) {
@@ -387,15 +388,28 @@
             }
         }
 
-        // Lógica al usar el input libre
-        customColorPicker.addEventListener('change', (e) => {
+        // CORRECCIÓN: Renderizado instantáneo al arrastrar/cambiar el selector libre
+        customColorPicker.addEventListener('input', (e) => {
             const hex = e.target.value.toUpperCase();
             colorCodeInput.value = hex;
             
-            // Quitar selección de la paleta rápida
+            // Quitar selección visual de la paleta predefinida
             document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
             
-            fetchColorName(hex);
+            // Pintar la ruedita del botón del formulario
+            customColorWheel.style.background = hex;
+            
+            // Nombre temporal rápido para evitar retrasos de red
+            lastKnownColorName = `Personalizado (${hex})`;
+            colorNameDisplay.textContent = `Seleccionado: ${lastKnownColorName}`;
+            
+            // Forzar actualización inmediata en el Preview Card
+            updatePreview();
+        });
+
+        customColorPicker.addEventListener('change', (e) => {
+            // Cuando sueltas el selector, busca el nombre exacto de forma asíncrona
+            fetchColorName(e.target.value.toUpperCase());
         });
 
         // Visibilidad según modelo
@@ -449,10 +463,14 @@
             const designTagsContainer = document.getElementById('previewDesignTags');
             
             if (selectedModel === 'Modelo 1') {
-                const hex = colorCodeInput.value;
+                const hex = colorCodeInput.value || '#FFFFFF';
+                // CORRECCIÓN: Renderizado explícito garantizado usando estilos en línea inmunes a colapsos
                 designTagsContainer.innerHTML = `
                     <span class="design-tag">🛡️ Modelo 1</span>
-                    <span class="design-tag" title="${lastKnownColorName}"><div class="color-dot" style="background-color: ${hex};"></div> ${lastKnownColorName.split(' ')[0]}</span>
+                    <span class="design-tag" title="${lastKnownColorName}">
+                        <div class="color-dot" style="background-color: ${hex} !important;"></div> 
+                        ${lastKnownColorName}
+                    </span>
                 `;
             } else {
                 designTagsContainer.innerHTML = `<span class="design-tag">✨ Full Acero Inoxidable</span>`;
@@ -480,17 +498,18 @@
         document.getElementById('saveConfigBtn').addEventListener('click', saveConfiguration);
         document.getElementById('loadConfigBtn').addEventListener('click', loadConfiguration);
 
-        // Función auxiliar para setear el color al cargar un producto o config
         function setColorByHex(hexCode) {
-            colorCodeInput.value = hexCode;
-            const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${hexCode.toUpperCase()}"]`);
+            if (!hexCode) return;
+            const cleanHex = hexCode.toUpperCase();
+            colorCodeInput.value = cleanHex;
+            const swatchToSelect = document.querySelector(`.color-swatch[data-hex="${cleanHex}"]`);
             if (swatchToSelect) {
                 swatchToSelect.click();
             } else {
-                // Era un color personalizado
                 document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
-                customColorPicker.value = hexCode;
-                fetchColorName(hexCode);
+                customColorPicker.value = cleanHex;
+                customColorWheel.style.background = cleanHex;
+                fetchColorName(cleanHex);
             }
         }
 
@@ -518,7 +537,8 @@
         function resetForm() {
             nameInput.value = ''; cityInput.value = ''; descInput.value = ''; priceInput.value = ''; 
             currentGalleryUrls = []; renderGallery(); editingId = null; 
-            document.querySelector('.color-swatch').click(); // volver a blanco
+            customColorWheel.style.background = 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)';
+            document.querySelector('.color-swatch').click(); 
             updatePreview();
         }
 
@@ -581,7 +601,7 @@
             list.innerHTML = data.map(p => {
                 const mainImg = p.gallery && p.gallery.length > 0 ? p.gallery[0] : (p.image_url || 'https://placehold.co/50');
                 const modelBadge = p.exterior_model === 'Modelo 1' 
-                    ? `🛡️ Mod. 1 <div class="color-dot" style="background-color:${p.color_code || '#fff'}; display:inline-block; vertical-align:middle;"></div>` 
+                    ? `🛡️ Mod. 1 <div class="color-dot" style="background-color:${p.color_code || '#fff'} !important;"></div>` 
                     : `✨ Full Acero`;
                 return `
                     <div class="product-item">
@@ -618,7 +638,14 @@
                 
                 let designHtml = '';
                 if (p.exterior_model === 'Modelo 1') {
-                    designHtml = `<div class="design-tags"><span class="design-tag">🛡️ Laterales Pintados</span><span class="design-tag"><div class="color-dot" style="background-color: ${p.color_code};"></div> Color Personalizado</span></div>`;
+                    designHtml = `
+                        <div class="design-tags">
+                            <span class="design-tag">🛡️ Laterales Pintados</span>
+                            <span class="design-tag">
+                                <div class="color-dot" style="background-color: ${p.color_code || '#fff'} !important;"></div> 
+                                Acabado: ${p.color_code || 'Personalizado'}
+                            </span>
+                        </div>`;
                 } else if (p.exterior_model === 'Modelo 2') {
                     designHtml = `<div class="design-tags"><span class="design-tag">✨ Full Acero Inoxidable</span></div>`;
                 }
